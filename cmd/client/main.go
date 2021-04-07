@@ -51,7 +51,7 @@ func Prime(client calculatorpb.CalculatorClient) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		stream.GetB()
+
 		fmt.Println(stream.GetB())
 	}
 }
