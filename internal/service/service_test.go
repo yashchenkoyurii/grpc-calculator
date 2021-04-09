@@ -28,3 +28,20 @@ func TestCalculatorService_PrimeDecomposition(t *testing.T) {
 		i++
 	}
 }
+
+func TestCalculatorService_ComputeAverage(t *testing.T) {
+	svc := &CalculatorService{}
+	numbers := []int32{1, 2, 3, 4}
+	var res float32 = 2.5
+	input := make(chan int32)
+	average := make(chan float32)
+
+	go svc.ComputeAverage(input, average)
+	for _, n := range numbers {
+		input <- n
+	}
+	close(input)
+
+	assert.Equal(t, res, <-average)
+
+}
