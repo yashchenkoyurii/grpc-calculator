@@ -17,16 +17,59 @@ func main() {
 	}
 	client := calculatorpb.NewCalculatorClient(cc)
 
-	fmt.Println(Sum(client))
-
-	fmt.Println("============")
-
+	fmt.Println("SUM: ")
+	Sum(client)
+	fmt.Println("Prime: ")
 	Prime(client)
-
+	fmt.Println("Compute average: ")
 	ComputeAverage(client)
+	fmt.Println("FIND MAX:")
+	FindMax(client)
 }
 
-func Sum(client calculatorpb.CalculatorClient) int32 {
+func FindMax(client calculatorpb.CalculatorClient) {
+	stream, err := client.FindMaximum(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	wait := make(chan struct{})
+
+	numbers := []int32{1, 5, 3, 6, 2, 20, 1}
+
+	go func() {
+		for _, n := range numbers {
+			fmt.Println("Request: ", n)
+			stream.Send(&calculatorpb.MaximumRequest{
+				Number: n,
+			})
+			time.Sleep(time.Second)
+		}
+		stream.CloseSend()
+	}()
+
+	go func() {
+		for {
+			res, err := stream.Recv()
+
+			if err == io.EOF {
+				close(wait)
+				return
+			}
+
+			if err != nil {
+				log.Fatal(err)
+				close(wait)
+			}
+
+			fmt.Printf("Maximum: %v \n", res.GetMaximum())
+		}
+	}()
+
+	<-wait
+}
+
+func Sum(client calculatorpb.CalculatorClient) {
 	res, err := client.Sum(context.Background(), &calculatorpb.SumRequest{
 		A: 10,
 		B: 14,
@@ -36,11 +79,11 @@ func Sum(client calculatorpb.CalculatorClient) int32 {
 		log.Fatal(err)
 	}
 
-	return res.GetC()
+	fmt.Println(res.GetC())
 }
 
 func Prime(client calculatorpb.CalculatorClient) {
-	res, err := client.PrimeDecomposition(context.Background(), &calculatorpb.PrimeRequest{A: 1})
+	res, err := client.PrimeDecomposition(context.Background(), &calculatorpb.PrimeRequest{A: 123456})
 	if err != nil {
 		log.Fatal(err)
 	}

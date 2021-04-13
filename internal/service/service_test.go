@@ -45,3 +45,29 @@ func TestCalculatorService_ComputeAverage(t *testing.T) {
 	assert.Equal(t, res, <-average)
 
 }
+
+func TestCalculatorService_FindMax(t *testing.T) {
+	var actual []int32
+	numbers := []int32{1, 20, 15, 21}
+	maxs := []int32{1, 20, 20, 21}
+
+	in := make(chan int32)
+	out := make(chan int32)
+
+	svc := &CalculatorService{}
+
+	go svc.FindMax(in, out)
+	go func() {
+		for _, n := range numbers {
+			in <- n
+		}
+
+		close(in)
+	}()
+
+	for m := range out {
+		actual = append(actual, m)
+	}
+
+	assert.Equal(t, maxs, actual)
+}
