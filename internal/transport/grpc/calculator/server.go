@@ -13,6 +13,35 @@ type Server struct {
 	calculator service.ICalculator
 }
 
+func (s Server) FindMaximum(stream calculatorpb.Calculator_FindMaximumServer) error {
+	in := make(chan int32)
+	out := make(chan int32)
+
+	go s.calculator.FindMax(in, out)
+	go func() {
+		for max := range out {
+			stream.Send(&calculatorpb.MaximumResponse{
+				Maximum: max,
+			})
+		}
+	}()
+
+	for {
+		req, err := stream.Recv()
+
+		if err == io.EOF {
+			close(in)
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		in <- req.GetNumber()
+	}
+}
+
 func (s Server) ComputeAverage(stream calculatorpb.Calculator_ComputeAverageServer) error {
 	numbers := make(chan int32, 100)
 	result := make(chan float32)

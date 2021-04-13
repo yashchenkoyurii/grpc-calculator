@@ -4,9 +4,25 @@ type ICalculator interface {
 	Sum(a, b int32) int32
 	PrimeDecomposition(a int32) chan int32
 	ComputeAverage(numbers chan int32, result chan float32)
+	FindMax(numbers chan int32, max chan int32)
 }
 
 type CalculatorService struct {
+}
+
+func (s CalculatorService) FindMax(numbers chan int32, max chan int32) {
+	var m = <-numbers
+	max <- m
+
+	for n := range numbers {
+		if n > m {
+			m = n
+		}
+
+		max <- m
+	}
+
+	close(max)
 }
 
 func (s CalculatorService) ComputeAverage(numbers chan int32, result chan float32) {
