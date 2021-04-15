@@ -1,7 +1,9 @@
 package service
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"math"
 	"testing"
 )
 
@@ -70,4 +72,28 @@ func TestCalculatorService_FindMax(t *testing.T) {
 	}
 
 	assert.Equal(t, maxs, actual)
+}
+
+func TestCalculatorService_SquareRoot(t *testing.T) {
+	svc := &CalculatorService{}
+
+	cases := []struct {
+		number float32
+		root   float32
+		err    error
+	}{
+		{
+			number: 2, root: float32(math.Sqrt(2)), err: nil,
+		},
+		{
+			number: -2, root: 0, err: fmt.Errorf("invalid argument"),
+		},
+	}
+
+	for _, c := range cases {
+		root, err := svc.SquareRoot(c.number)
+
+		assert.Equal(t, c.root, root)
+		assert.Equal(t, c.err, err)
+	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/yashchenkoyurii/sum-api/internal/transport/grpc/calculator/calculatorpb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"time"
@@ -25,6 +26,27 @@ func main() {
 	ComputeAverage(client)
 	fmt.Println("FIND MAX:")
 	FindMax(client)
+	fmt.Println("SR 10:")
+	SquareRoot(client, 10)
+	fmt.Println("SR 02:")
+	SquareRoot(client, -2)
+
+}
+
+func SquareRoot(client calculatorpb.CalculatorClient, number float32) {
+	res, err := client.SquareRoot(context.Background(), &calculatorpb.SquareRootRequest{Number: number})
+	if err != nil {
+		s, ok := status.FromError(err)
+
+		if ok {
+			fmt.Println(fmt.Sprintf("Code: %v. Eror: %v", s.Code(), s.Message()))
+			return
+		} else {
+			log.Fatal(err)
+		}
+	}
+
+	fmt.Println(res.GetSquareRoot())
 }
 
 func FindMax(client calculatorpb.CalculatorClient) {
