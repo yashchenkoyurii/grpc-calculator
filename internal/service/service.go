@@ -1,13 +1,29 @@
 package service
 
+import (
+	"fmt"
+	"math"
+)
+
 type ICalculator interface {
 	Sum(a, b int32) int32
 	PrimeDecomposition(a int32) chan int32
 	ComputeAverage(numbers chan int32, result chan float32)
 	FindMax(numbers chan int32, max chan int32)
+	SquareRoot(number float32) (float32, error)
 }
 
 type CalculatorService struct {
+}
+
+func (s CalculatorService) SquareRoot(number float32) (float32, error) {
+	if number < 0 {
+		return 0, fmt.Errorf("invalid argument")
+	}
+
+	root := float32(math.Sqrt(float64(number)))
+
+	return root, nil
 }
 
 func (s CalculatorService) FindMax(numbers chan int32, max chan int32) {

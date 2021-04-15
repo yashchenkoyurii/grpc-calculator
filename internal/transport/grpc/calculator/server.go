@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/yashchenkoyurii/sum-api/internal/service"
 	"github.com/yashchenkoyurii/sum-api/internal/transport/grpc/calculator/calculatorpb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"time"
@@ -11,6 +13,24 @@ import (
 
 type Server struct {
 	calculator service.ICalculator
+}
+
+func (s Server) SquareRoot(
+	ctx context.Context,
+	request *calculatorpb.SquareRootRequest,
+) (
+	*calculatorpb.SquareRootResponse,
+	error,
+) {
+	root, err := s.calculator.SquareRoot(request.GetNumber())
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
+	return &calculatorpb.SquareRootResponse{
+		SquareRoot: root,
+	}, nil
 }
 
 func (s Server) FindMaximum(stream calculatorpb.Calculator_FindMaximumServer) error {

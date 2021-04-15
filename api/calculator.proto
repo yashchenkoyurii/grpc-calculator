@@ -36,9 +36,18 @@ message MaximumResponse {
   int32 maximum = 1;
 }
 
+message SquareRootRequest {
+  float number = 1;
+}
+
+message SquareRootResponse {
+  float squareRoot = 1;
+}
+
 service Calculator {
   rpc Sum (SumRequest) returns (SumResponse);
   rpc PrimeDecomposition (PrimeRequest) returns (stream PrimeResponse);
   rpc ComputeAverage (stream AverageRequest) returns (AverageResponse);
   rpc FindMaximum (stream MaximumRequest) returns (stream MaximumResponse);
+  rpc SquareRoot (SquareRootRequest) returns (SquareRootResponse);
 }
